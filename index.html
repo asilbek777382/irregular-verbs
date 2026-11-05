@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,7 +16,13 @@
   .main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:18px}
   .uz{font-size:clamp(22px,4vw,36px);color:#94a3b8}
   .forms{font-size:clamp(44px,11vw,130px);font-weight:800;letter-spacing:.5px;color:#fff;word-break:break-word}
+  .langs{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+  .top i{font-style:normal}
+  button.lang{background:#334155;color:#f1f5f9;border:0;border-radius:10px;padding:10px 16px;font-size:15px;cursor:pointer}
+  button.lang:hover{background:#475569}
+  .top button.lang.active,button.lang.active{background:#0ea5e9}
   .forms .tr{color:#fbbf24}
+  .forms .ru{color:#4ade80}
   input{width:min(560px,90vw);padding:16px 18px;font-size:clamp(20px,3vw,30px);text-align:center;border-radius:14px;border:2px solid #334155;background:#1e293b;color:#fff;outline:none;user-select:text}
   input:focus{border-color:#38bdf8}
   .hint{color:#64748b;font-size:14px}
@@ -35,29 +41,39 @@
 
 <div class="overlay" id="startScreen">
   <h1>Irregular Verbs</h1>
-  <p>Fe'llarning 3 ta shaklini yozib o'rganing</p>
-  <button class="big" id="startBtn">Darsni boshlash</button>
-  <p class="redhint">Daftarga yozib bo'lgach ekranning istalgan joyiga bosing (yoki Enter / Probel) — keyingi so'zga o'tadi</p>
+  <div class="langs">🌐
+    <button class="lang" data-m="uz">O'zbekcha</button>
+    <button class="lang" data-m="ru">Русский</button>
+    <button class="lang" data-m="both" data-i="both">Ikkalasi</button>
+  </div>
+  <p data-i="sub">Fe'llarning 3 ta shaklini yozib o'rganing</p>
+  <button class="big" id="startBtn" data-i="start">Darsni boshlash</button>
+  <p class="redhint" data-i="hint">Daftarga yozib bo'lgach ekranning istalgan joyiga bosing (yoki Enter / Probel) — keyingi so'zga o'tadi</p>
 </div>
 
 <div class="overlay hidden" id="pauseScreen">
-  <h1>Pauza</h1>
-  <p>Vaqt to'xtatildi</p>
-  <button class="big" id="resumeBtn">Davom etish</button>
+  <h1 data-i="pauseH">Pauza</h1>
+  <p data-i="pauseP">Vaqt to'xtatildi</p>
+  <button class="big" id="resumeBtn" data-i="resume">Davom etish</button>
 </div>
 
 <div class="top">
-  <span>⏱ Vaqt: <b id="time">00:00</b></span>
-  <span>✍️ Yozilgan so'zlar: <b id="written">0</b></span>
-  <span>🔁 Aylanish: <b id="rounds">0</b></span>
-  <button id="pauseBtn">⏸ Pauza</button>
+  <span>⏱ <i data-i="time">Vaqt:</i> <b id="time">00:00</b></span>
+  <span>✍️ <i data-i="written">Yozilgan so'zlar:</i> <b id="written">0</b></span>
+  <span>🔁 <i data-i="rounds">Aylanish:</i> <b id="rounds">0</b></span>
+  <span class="langs">🌐
+    <button class="lang" data-m="uz">O'zbekcha</button>
+    <button class="lang" data-m="ru">Русский</button>
+    <button class="lang" data-m="both" data-i="both">Ikkalasi</button>
+  </span>
+  <button id="pauseBtn" data-i="pause">⏸ Pauza</button>
 </div>
 
 <div class="main" id="main">
   <div class="forms" id="forms"></div></div>
 
 <div class="bottom">
-  <button id="backBtn">← Ortga</button>
+  <button id="backBtn" data-i="back">← Ortga</button>
   <span class="idx" id="idx"></span>
 </div>
 
@@ -174,7 +190,22 @@ const W = [
 ["write","wrote","written","yozmoq"]
 ];
 
+const RU = ["быть","нести","побеждать","становиться","начинать","кусать","дуть","ломать","приносить","строить",
+"гореть","лопаться","покупать","мочь","ловить","выбирать","приходить","стоить","резать","иметь дело",
+"копать","делать","рисовать","видеть сон","пить","водить","есть","падать","кормить","чувствовать",
+"драться","находить","летать","запрещать","забывать","прощать","замерзать","получать","давать","идти",
+"расти","вешать","иметь","слышать","прятать","ударять","держать","причинять боль","хранить","знать",
+"класть","вести","учить","покидать","одалживать","позволять","лежать","освещать","терять","создавать",
+"означать","встречать","платить","ставить","читать","ехать верхом","звенеть","подниматься","бегать","говорить",
+"видеть","продавать","отправлять","устанавливать","шить","трясти","светить","стрелять","показывать","закрывать",
+"петь","сидеть","спать","нюхать","разговаривать","произносить по буквам","тратить","проливать","портить","распространять",
+"стоять","красть","приклеивать","жалить","наносить удар","клясться","подметать","плавать","брать","обучать",
+"рвать","рассказывать","думать","бросать","понимать","просыпаться","носить","выигрывать","писать"];
+W.forEach((w,k)=>{ w.push(RU[k] || ''); });
+
 const $ = id => document.getElementById(id);
+let mode = 'ru';
+try { mode = localStorage.getItem('mode') || 'ru'; } catch(e){}
 let i = 0, written = 0, rounds = 0, elapsed = 0, running = false, last = 0, timer = null;
 
 function fmt(ms){
@@ -182,9 +213,28 @@ function fmt(ms){
   const p = n => String(n).padStart(2,'0');
   return (h ? p(h)+':' : '') + p(m)+':'+p(x);
 }
+const T = {
+  uz:{sub:"Fe'llarning 3 ta shaklini yozib o'rganing",start:"Darsni boshlash",
+      hint:"Daftarga yozib bo'lgach ekranning istalgan joyiga bosing (yoki Enter / Probel) — keyingi so'zga o'tadi",
+      pauseH:"Pauza",pauseP:"Vaqt to'xtatildi",resume:"Davom etish",time:"Vaqt:",written:"Yozilgan so'zlar:",
+      rounds:"Aylanish:",both:"Ikkalasi",pause:"⏸ Pauza",back:"← Ortga"},
+  ru:{sub:"Учите три формы глаголов, записывая их",start:"Начать урок",
+      hint:"Записав в тетрадь, нажмите в любом месте экрана (или Enter / Пробел) — перейдёте к следующему слову",
+      pauseH:"Пауза",pauseP:"Время остановлено",resume:"Продолжить",time:"Время:",written:"Записано слов:",
+      rounds:"Кругов:",both:"Оба",pause:"⏸ Пауза",back:"← Назад"}
+};
+function applyUI(){
+  const t = T[mode === 'ru' ? 'ru' : 'uz'];
+  document.documentElement.lang = mode === 'ru' ? 'ru' : 'uz';
+  document.querySelectorAll('[data-i]').forEach(el => { el.textContent = t[el.dataset.i]; });
+}
 function render(){
+  applyUI();
   const w = W[i];
-  $('forms').innerHTML = '<span class="tr">' + w[3] + '</span> - ' + w[0] + ', ' + w[1] + ', ' + w[2];
+  const uz = '<span class="tr">' + w[3] + '</span>', ru = '<span class="ru">' + w[4] + '</span>';
+  const tr = mode === 'uz' ? uz : mode === 'ru' ? ru : uz + ' / ' + ru;
+  $('forms').innerHTML = tr + ' - ' + w[0] + ', ' + w[1] + ', ' + w[2];
+  document.querySelectorAll('.lang').forEach(b => b.classList.toggle('active', b.dataset.m === mode));
   $('idx').textContent = (i+1) + ' / ' + W.length;
   $('written').textContent = written;
   $('rounds').textContent = rounds;
@@ -214,6 +264,9 @@ function back(){
 }
 
 $('startBtn').onclick = e => { e.stopPropagation(); $('startScreen').classList.add('hidden'); start(); };
+document.querySelectorAll('.lang').forEach(b => {
+  b.onclick = e => { e.stopPropagation(); mode = b.dataset.m; try{ localStorage.setItem('mode', mode); }catch(err){} render(); b.blur(); };
+});
 $('pauseBtn').onclick = e => { e.stopPropagation(); pause(); };
 $('resumeBtn').onclick = e => { e.stopPropagation(); resume(); };
 $('backBtn').onclick = e => { e.stopPropagation(); back(); };
