@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Irregular Verbs</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#0f172a;color:#f1f5f9;
+    display:flex;flex-direction:column;min-height:100vh;user-select:none;-webkit-tap-highlight-color:transparent}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:14px 18px;background:#1e293b;font-size:15px}
+  .top span b{color:#38bdf8;font-variant-numeric:tabular-nums}
+  .top button,.bottom button{background:#334155;color:#f1f5f9;border:0;border-radius:10px;padding:10px 16px;font-size:15px;cursor:pointer}
+  .top button:hover,.bottom button:hover{background:#475569}
+  .main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;gap:18px}
+  .uz{font-size:clamp(22px,4vw,36px);color:#94a3b8}
+  .forms{font-size:clamp(44px,11vw,130px);font-weight:800;letter-spacing:.5px;color:#fff;word-break:break-word}
+  .forms .tr{color:#fbbf24}
+  input{width:min(560px,90vw);padding:16px 18px;font-size:clamp(20px,3vw,30px);text-align:center;border-radius:14px;border:2px solid #334155;background:#1e293b;color:#fff;outline:none;user-select:text}
+  input:focus{border-color:#38bdf8}
+  .hint{color:#64748b;font-size:14px}
+  .bottom{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#1e293b}
+  .idx{color:#94a3b8;font-size:15px}
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:10;text-align:center;padding:20px}
+  .overlay h1{font-size:clamp(28px,6vw,52px)}
+  .overlay p{color:#94a3b8}
+  .big{background:#0ea5e9!important;font-size:22px!important;padding:18px 36px!important;border-radius:14px!important;color:#fff;border:0;cursor:pointer}
+  .big:hover{background:#0284c7!important}
+  .overlay p.redhint{color:#ef4444;font-size:16px;max-width:520px}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="startScreen">
+  <h1>Irregular Verbs</h1>
+  <p>Fe'llarning 3 ta shaklini yozib o'rganing</p>
+  <button class="big" id="startBtn">Darsni boshlash</button>
+  <p class="redhint">Daftarga yozib bo'lgach ekranning istalgan joyiga bosing (yoki Enter / Probel) — keyingi so'zga o'tadi</p>
+</div>
+
+<div class="overlay hidden" id="pauseScreen">
+  <h1>Pauza</h1>
+  <p>Vaqt to'xtatildi</p>
+  <button class="big" id="resumeBtn">Davom etish</button>
+</div>
+
+<div class="top">
+  <span>⏱ Vaqt: <b id="time">00:00</b></span>
+  <span>✍️ Yozilgan so'zlar: <b id="written">0</b></span>
+  <span>🔁 Aylanish: <b id="rounds">0</b></span>
+  <button id="pauseBtn">⏸ Pauza</button>
+</div>
+
+<div class="main" id="main">
+  <div class="forms" id="forms"></div></div>
+
+<div class="bottom">
+  <button id="backBtn">← Ortga</button>
+  <span class="idx" id="idx"></span>
+</div>
+
+<script>
+const W = [
+["be","was","been","bo'lmoq"],
+["bear","bore","born(e)","ko'tarmoq"],
+["beat","beat","beaten","yengmoq"],
+["become","became","become","aylanmoq"],
+["begin","began","begun","boshlamoq"],
+["bite","bit","bitten","tishlamoq"],
+["blow","blew","blown","puflamoq"],
+["break","broke","broken","sindirmoq"],
+["bring","brought","brought","olib kelmoq"],
+["build","built","built","qurmoq"],
+["burn","burnt (burned)","burnt (burned)","yonmoq"],
+["burst","burst","burst","portlamoq"],
+["buy","bought","bought","sotib olmoq"],
+["can","could","(been able to)","qila olmoq"],
+["catch","caught","caught","tutmoq"],
+["choose","chose","chosen","tanlamoq"],
+["come","came","come","kelmoq"],
+["cost","cost","cost","narxi turmoq"],
+["cut","cut","cut","kesmoq"],
+["deal","dealt","dealt","muomala qilmoq"],
+["dig","dug","dug","qazimoq"],
+["do","did","done","qilmoq"],
+["draw","drew","drawn","chizmoq"],
+["dream","dreamt (dreamed)","dreamt (dreamed)","tush ko'rmoq"],
+["drink","drank","drunk","ichmoq"],
+["drive","drove","driven","haydamoq"],
+["eat","ate","eaten","yemoq"],
+["fall","fell","fallen","yiqilmoq"],
+["feed","fed","fed","boqmoq"],
+["feel","felt","felt","his qilmoq"],
+["fight","fought","fought","urushmoq"],
+["find","found","found","topmoq"],
+["fly","flew","flown","uchmoq"],
+["forbid","forbade","forbidden","taqiqlamoq"],
+["forget","forgot","forgotten","unutmoq"],
+["forgive","forgave","forgiven","kechirmoq"],
+["freeze","froze","frozen","muzlamoq"],
+["get","got","got","olmoq"],
+["give","gave","given","bermoq"],
+["go","went","gone","bormoq"],
+["grow","grew","grown","o'smoq"],
+["hang","hung (hanged)","hung (hanged)","osmoq"],
+["have","had","had","ega bo'lmoq"],
+["hear","heard","heard","eshitmoq"],
+["hide","hid","hidden","yashirmoq"],
+["hit","hit","hit","urmoq"],
+["hold","held","held","ushlamoq"],
+["hurt","hurt","hurt","og'ritmoq"],
+["keep","kept","kept","saqlamoq"],
+["know","knew","known","bilmoq"],
+["lay","laid","laid","yotqizmoq"],
+["lead","led","led","boshlab bormoq"],
+["learn","learnt (learned)","learnt (learned)","o'rganmoq"],
+["leave","left","left","tark etmoq"],
+["lend","lent","lent","qarz bermoq"],
+["let","let","let","ruxsat bermoq"],
+["lie","lay","lain","yotmoq"],
+["light","lit","lit","yoritmoq"],
+["lose","lost","lost","yo'qotmoq"],
+["make","made","made","yasamoq"],
+["mean","meant","meant","anglatmoq"],
+["meet","met","met","uchrashmoq"],
+["pay","paid","paid","to'lamoq"],
+["put","put","put","qo'ymoq"],
+["read","read","read","o'qimoq"],
+["ride","rode","ridden","minmoq"],
+["ring","rang","rung","jiringlamoq"],
+["rise","rose","risen","ko'tarilmoq"],
+["run","ran","run","yugurmoq"],
+["say","said","said","aytmoq"],
+["see","saw","seen","ko'rmoq"],
+["sell","sold","sold","sotmoq"],
+["send","sent","sent","yubormoq"],
+["set","set","set","o'rnatmoq"],
+["sew","sewed","sewn","tikmoq"],
+["shake","shook","shaken","silkitmoq"],
+["shine","shone","shone","porlamoq"],
+["shoot","shot","shot","otmoq"],
+["show","showed","shown","ko'rsatmoq"],
+["shut","shut","shut","yopmoq"],
+["sing","sang","sung","kuylamoq"],
+["sit","sat","sat","o'tirmoq"],
+["sleep","slept","slept","uxlamoq"],
+["smell","smelt (smelled)","smelt (smelled)","hidlamoq"],
+["speak","spoke","spoken","gapirmoq"],
+["spell","spelt (spelled)","spelt (spelled)","harflab aytmoq"],
+["spend","spent","spent","sarflamoq"],
+["spill","spilt","spilt","to'kmoq"],
+["spoil","spoilt (spoiled)","spoilt (spoiled)","buzmoq"],
+["spread","spread","spread","yoymoq"],
+["stand","stood","stood","turmoq"],
+["steal","stole","stolen","o'g'irlamoq"],
+["stick","stuck","stuck","yopishtirmoq"],
+["sting","stung","stung","chaqmoq"],
+["strike","struck","struck","zarba bermoq"],
+["swear","swore","sworn","qasam ichmoq"],
+["sweep","swept","swept","supurmoq"],
+["swim","swam","swum","suzmoq"],
+["take","took","taken","olib ketmoq"],
+["teach","taught","taught","o'rgatmoq"],
+["tear","tore","torn","yirtmoq"],
+["tell","told","told","aytib bermoq"],
+["think","thought","thought","o'ylamoq"],
+["throw","threw","thrown","uloqtirmoq"],
+["understand","understood","understood","tushunmoq"],
+["wake","woke","woken","uyg'onmoq"],
+["wear","wore","worn","kiymoq"],
+["win","won","won","yutmoq"],
+["write","wrote","written","yozmoq"]
+];
+
+const $ = id => document.getElementById(id);
+let i = 0, written = 0, rounds = 0, elapsed = 0, running = false, last = 0, timer = null;
+
+function fmt(ms){
+  const s = Math.floor(ms/1000), h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60;
+  const p = n => String(n).padStart(2,'0');
+  return (h ? p(h)+':' : '') + p(m)+':'+p(x);
+}
+function render(){
+  const w = W[i];
+  $('forms').innerHTML = '<span class="tr">' + w[3] + '</span> - ' + w[0] + ', ' + w[1] + ', ' + w[2];
+  $('idx').textContent = (i+1) + ' / ' + W.length;
+  $('written').textContent = written;
+  $('rounds').textContent = rounds;
+}
+function tick(){
+  if(running){ const n = Date.now(); elapsed += n - last; last = n; $('time').textContent = fmt(elapsed); }
+}
+function start(){
+  running = true; last = Date.now();
+  clearInterval(timer); timer = setInterval(tick, 250);
+}
+function pause(){ tick(); running = false; $('pauseScreen').classList.remove('hidden'); }
+function resume(){ $('pauseScreen').classList.add('hidden'); start(); }
+
+function next(){
+  if(!running) return;
+  written++;
+  i++;
+  if(i >= W.length){ i = 0; rounds++; }
+  render();
+}
+function back(){
+  if(!running) return;
+  i = i > 0 ? i-1 : W.length-1;
+  if(written>0) written--;
+  render();
+}
+
+$('startBtn').onclick = e => { e.stopPropagation(); $('startScreen').classList.add('hidden'); start(); };
+$('pauseBtn').onclick = e => { e.stopPropagation(); pause(); };
+$('resumeBtn').onclick = e => { e.stopPropagation(); resume(); };
+$('backBtn').onclick = e => { e.stopPropagation(); back(); };
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); next(); }
+  else if(e.key === 'ArrowLeft'){ back(); }
+});
+
+// istalgan joyga bosilganda keyingi so'zga o'tish
+document.addEventListener('click', e => {
+  if(e.target.closest('button') || e.target.closest('.overlay')) return;
+  next();
+});
+
+render();
+</script>
+</body>
+</html>
